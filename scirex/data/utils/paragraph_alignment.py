@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 import numpy as np
-
+import logging
 from scirex.data.utils.span_utils import is_x_in_y
 
 Span = Tuple[int, int]
@@ -85,6 +85,7 @@ def move_boundaries(plist, elist):
 
 def group_sentences_to_sections(sentences: List[Span], sections: List[Span]) -> List[List[Span]]:
     grouped_sentences = [[] for _ in range(len(sections))]
+    logger = logging.getLogger(__name__)
     for s in sentences:
         done = 0
         for i, sec in enumerate(sections):

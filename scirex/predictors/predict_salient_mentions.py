@@ -12,6 +12,7 @@ from allennlp.data import DataIterator, DatasetReader
 from allennlp.data.dataset import Batch
 from allennlp.models.archival import load_archive
 from allennlp.nn import util as nn_util
+from allennlp.common.params import Params
 
 import logging
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(message)s", level=logging.INFO)
@@ -45,7 +46,6 @@ def predict(archive_folder, test_file, output_file, cuda_device):
     for instance in instances :
         batch = Batch([instance])
         batch.index_instances(model.vocab)
-
     data_iterator = DataIterator.from_params(config["validation_iterator"])
     iterator = data_iterator(instances, num_epochs=1, shuffle=False)
 
@@ -54,8 +54,10 @@ def predict(archive_folder, test_file, output_file, cuda_device):
         for batch in tqdm(iterator):
             batch = nn_util.move_to_device(batch, cuda_device)  # Put on GPU.
             output_res = model.decode_saliency(batch, saliency_threshold)
-
+            if "metadata" not in output_res:
+                continue
             metadata = output_res['metadata']
+            
             doc_ids: List[str] = [m["doc_id"] for m in metadata]
             assert len(set(doc_ids)) == 1
 
