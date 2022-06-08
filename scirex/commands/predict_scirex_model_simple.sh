@@ -1,11 +1,10 @@
-export test_file=/cluster/scratch/fgonzalez/scirex_dataset/release_data/test.jsonl
-export test_output_folder=/cluster/scratch/fgonzalez/test_outputs
+export test_file=/cluster/project/sachan/fgonzalez/scirex_dataset/release_data/100k_papers_test.jsonl
+export test_output_folder=/cluster/project/sachan/fgonzalez/test_outputs
 
 
-echo "Predicting Salient Mentions"
-python scirex/predictors/predict_salient_mentions.py \
+echo "Predicting NER"
+python scirex/predictors/predict_ner.py \
 $scirex_archive \
-$test_output_folder/ner_predictions.jsonl \
-$test_output_folder/salient_mentions_predictions.jsonl \
+$test_file \
+$test_output_folder/ner_predictions_100k.jsonl \
 $cuda_device
-

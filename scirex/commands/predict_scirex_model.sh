@@ -1,5 +1,5 @@
-export test_file=/cluster/scratch/fgonzalez/scirex_dataset/release_data/test.jsonl
-export test_output_folder=/cluster/scratch/fgonzalez/test_outputs
+export test_file=/cluster/project/sachan/fgonzalez/scirex_dataset/release_data/test.jsonl
+export test_output_folder=/cluster/project/sachan/fgonzalez/test_outputs
 
 
 echo "Predicting NER"

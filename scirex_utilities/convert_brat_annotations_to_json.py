@@ -13,7 +13,7 @@ from scirex_utilities.analyse_pwc_entity_results import *
 from scirex_utilities.entity_utils import *
 from spacy.tokens import Doc
 from tqdm import tqdm
-
+import en_core_web_sm
 tqdm.pandas()
 LabelSpan = namedtuple("Span", ["start", "end", "token_start", "token_end", "entity", "links", "modified"])
 logging.basicConfig(level=logging.INFO)

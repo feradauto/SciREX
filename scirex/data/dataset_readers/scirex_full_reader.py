@@ -154,84 +154,75 @@ class ScirexFullReader(DatasetReader):
                 sections: List[Span] = json_dict["sections"]
                 sentences: List[List[Span]] = json_dict["sentences"]
                 words: List[str] = json_dict["words"]
-                entities: Dict[Span, EntityType] = json_dict["ner"]
-                corefs: Dict[ClusterName, List[Span]] = json_dict["coref"]#[]
-                n_ary_relations: List[Dict[BaseEntityType, ClusterName]] = json_dict["n_ary_relations"]#[]
+                entities: Dict[Span, EntityType] = []#json_dict["ner"]
+                corefs: Dict[ClusterName, List[Span]] = []#json_dict["coref"]
+                n_ary_relations: List[Dict[BaseEntityType, ClusterName]] = []#json_dict["n_ary_relations"]
 
                 # Extract Document structure features
-                entities_to_features_map: Dict[Span, List[str]] = extract_sentence_features(
-                    sentences, words, entities
-                )
-                
-                # Map cluster names to integer cluster ids
-                cluster_name_to_id: Dict[ClusterName, int] = {
-                    k: i for i, k in enumerate(sorted(list(corefs.keys())))
-                }
-                max_salient_cluster = len(corefs)
-                
-                # Map Spans to list of clusters ids it belong to.
-                span_to_cluster_ids: Dict[Span, List[int]] = {}
-                for cluster_name in corefs:
-                    for span in corefs[cluster_name]:
-                        span_to_cluster_ids.setdefault(span, []).append(cluster_name_to_id[cluster_name])
-                
-                span_to_cluster_ids = {span: sorted(v) for span, v in span_to_cluster_ids.items()}
-                
-                assert sorted(list(cluster_name_to_id.values())) == list(
-                    range(max_salient_cluster)
-                ), breakpoint()
-                
-                # Map types to list of cluster ids that are of that type
-                type_to_cluster_ids: Dict[BaseEntityType, List[int]] = {k: [] for k in used_entities}
-                
-                for cluster_name in corefs:
-                    types = [entities[span][0] for span in corefs[cluster_name]]
-                    if len(set(types)) > 0:
-                        try :
-                            type_to_cluster_ids[mode(types)[0][0]].append(cluster_name_to_id[cluster_name])
-                        except :
-                            # SciERC gives trouble here. Not relevant .
-                            continue
-                
-                # Map relations to list of cluster ids in it.
-                relation_to_cluster_ids: Dict[int, List[int]] = {}
-                for rel_idx, rel in enumerate(n_ary_relations):
-                    relation_to_cluster_ids[rel_idx] = []
-                    for entity in used_entities:
-                        relation_to_cluster_ids[rel_idx].append(cluster_name_to_id[rel[entity]])
-                        type_to_cluster_ids[entity].append(cluster_name_to_id[rel[entity]])
-                
-                    relation_to_cluster_ids[rel_idx] = tuple(relation_to_cluster_ids[rel_idx])
-                
-                for k in type_to_cluster_ids:
-                    type_to_cluster_ids[k] = sorted(list(set(type_to_cluster_ids[k])))
-                
+                #entities_to_features_map: Dict[Span, List[str]] = extract_sentence_features(
+                #    sentences, words, entities
+                #)
+#
+                ## Map cluster names to integer cluster ids
+                #cluster_name_to_id: Dict[ClusterName, int] = {
+                #    k: i for i, k in enumerate(sorted(list(corefs.keys())))
+                #}
+                #max_salient_cluster = len(corefs)
+#
+                ## Map Spans to list of clusters ids it belong to.
+                #span_to_cluster_ids: Dict[Span, List[int]] = {}
+                #for cluster_name in corefs:
+                #    for span in corefs[cluster_name]:
+                #        span_to_cluster_ids.setdefault(span, []).append(cluster_name_to_id[cluster_name])
+#
+                #span_to_cluster_ids = {span: sorted(v) for span, v in span_to_cluster_ids.items()}
+#
+                #assert sorted(list(cluster_name_to_id.values())) == list(
+                #    range(max_salient_cluster)
+                #), breakpoint()
+#
+                ## Map types to list of cluster ids that are of that type
+                #type_to_cluster_ids: Dict[BaseEntityType, List[int]] = {k: [] for k in used_entities}
+#
+                #for cluster_name in corefs:
+                #    types = [entities[span][0] for span in corefs[cluster_name]]
+                #    if len(set(types)) > 0:
+                #        try :
+                #            type_to_cluster_ids[mode(types)[0][0]].append(cluster_name_to_id[cluster_name])
+                #        except :
+                #            # SciERC gives trouble here. Not relevant .
+                #            continue
+#
+                ## Map relations to list of cluster ids in it.
+                #relation_to_cluster_ids: Dict[int, List[int]] = {}
+                #for rel_idx, rel in enumerate(n_ary_relations):
+                #    relation_to_cluster_ids[rel_idx] = []
+                #    for entity in used_entities:
+                #        relation_to_cluster_ids[rel_idx].append(cluster_name_to_id[rel[entity]])
+                #        type_to_cluster_ids[entity].append(cluster_name_to_id[rel[entity]])
+#
+                #    relation_to_cluster_ids[rel_idx] = tuple(relation_to_cluster_ids[rel_idx])
+#
+                #for k in type_to_cluster_ids:
+                #    type_to_cluster_ids[k] = sorted(list(set(type_to_cluster_ids[k])))
+#
                 # Move paragraph boundaries around to accomodate in BERT
-                sections, sentences_grouped, entities_grouped = self.resize_sections_and_group(
-                    sections, sentences, entities
-                )
-                #sentences_grouped=sentences
+                #sections, sentences_grouped, entities_grouped = self.resize_sections_and_group(
+                #    sections, sentences, entities
+                #)
+                sentences_grouped=sentences
                 document_metadata = {
-                    "cluster_name_to_id": cluster_name_to_id,
-                    "span_to_cluster_ids": span_to_cluster_ids,
-                    "relation_to_cluster_ids": relation_to_cluster_ids,
-                    "type_to_cluster_ids": type_to_cluster_ids,
+                    "cluster_name_to_id": {},#cluster_name_to_id,
+                    "span_to_cluster_ids": {},#span_to_cluster_ids,
+                    "relation_to_cluster_ids": {},#relation_to_cluster_ids,
+                    "type_to_cluster_ids": {},#type_to_cluster_ids,
                     "doc_id": doc_id,
                     "doc_length": len(words),
-                    "entities_to_features_map": entities_to_features_map,
+                    "entities_to_features_map": {}#entities_to_features_map,
                 }
-                #document_metadata = {
-                #    "cluster_name_to_id": {},#cluster_name_to_id,
-                #    "span_to_cluster_ids": {},#span_to_cluster_ids,
-                #    "relation_to_cluster_ids": {},#relation_to_cluster_ids,
-                #    "type_to_cluster_ids": {},#type_to_cluster_ids,
-                #    "doc_id": doc_id,
-                #    "doc_length": len(words),
-                #    "entities_to_features_map": entities_to_features_map,
-                #}
                 # Loop over the sections.
-                for (paragraph_num, ((start_ix, end_ix), sentences, ner_dict)) in enumerate(
-                    zip(sections, sentences_grouped, entities_grouped)
+                for (paragraph_num, ((start_ix, end_ix), sentences)) in enumerate(
+                    zip(sections, sentences_grouped)
                 ):
                     paragraph = words[start_ix:end_ix]
                     if len(paragraph) == 0:
@@ -240,7 +231,7 @@ class ScirexFullReader(DatasetReader):
                     instance = self.text_to_instance(
                         paragraph_num=paragraph_num,
                         paragraph=paragraph,
-                        ner_dict=ner_dict,#{}
+                        ner_dict={},#ner_dict,
                         start_ix=start_ix,
                         end_ix=end_ix,
                         sentence_indices=sentences,
